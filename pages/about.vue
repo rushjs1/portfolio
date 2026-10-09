@@ -7,7 +7,7 @@ const interests = ['3D Art', 'Guitar & Piano', 'Music Production', 'Game Develop
 
 const facts = [
   { label: 'Based in', value: 'Indianapolis, IN' },
-  { label: 'Company', value: 'Jackson Systems', href: 'https://jacksonsystems.com/' },
+  { label: 'Company', value: 'E-gineering', href: 'https://www.e-gineering.com/' },
 ]
 </script>
 
