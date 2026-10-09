@@ -119,12 +119,12 @@ async function submit() {
           </div>
           <div class="text-lg font-semibold tracking-tight">
             <NuxtLink
-              to="https://jacksonsystems.com/"
+              to="https://www.e-gineering.com/"
               target="_blank"
               external
               class="inline-flex items-center gap-1 transition-colors hover:text-yellow-400"
             >
-              Jackson Systems
+              E-gineering
               <Icon name="heroicons-outline:external-link" size="0.9em" />
             </NuxtLink>
           </div>
