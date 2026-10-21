@@ -14,6 +14,11 @@ export default defineNuxtConfig({
   },
   nitro: {
     routeRules: {
+      '/': { prerender: true },
+      '/about': { prerender: true },
+      '/projects': { prerender: true },
+      '/contact': { prerender: true },
+      '/about-contact': { prerender: true },
       '/cv': {
         redirect: '/cv.pdf'
       }
@@ -29,6 +34,20 @@ export default defineNuxtConfig({
       ],
       viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
     },
+  },
+
+  experimental: {
+    defaults: {
+      nuxtLink: {
+        prefetchOn: { visibility: false, interaction: true },
+      },
+    },
+  },
+
+  icon: {
+    provider: 'server',
+    serverBundle: 'local',
+    fallbackToApi: false,
   },
 
   modules: [
