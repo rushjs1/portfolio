@@ -8,6 +8,9 @@ useSeoMeta({
 
 const toast = useToast()
 const isDisabled = ref(false)
+const requestController = new AbortController()
+
+onBeforeUnmount(() => requestController.abort())
 
 const { meta, values, errors, defineField, resetForm } = useForm({
   validationSchema: toTypedSchema(
@@ -30,10 +33,15 @@ async function submit() {
     const res = await $fetch('/api/contact', {
       method: 'POST',
       body: values,
+      signal: requestController.signal,
       headers: {
         'Content-Type': 'application/json',
       },
     })
+
+    if (requestController.signal.aborted) {
+      return
+    }
 
     if (res.ok) {
       toast.add({
@@ -41,14 +49,15 @@ async function submit() {
         description: 'I will contact you about your inquiry as soon as I can.',
         timeout: 10000,
         icon: 'i-heroicons-check-circle-16-solid',
-        callback: () => {
-          isDisabled.value = false
-        },
       })
 
       resetForm()
     }
   } catch (error) {
+    if (requestController.signal.aborted) {
+      return
+    }
+
     toast.add({
       title: 'Error submitting inquiry.',
       description:
@@ -56,17 +65,17 @@ async function submit() {
       timeout: 10000,
       icon: 'i-heroicons-x-circle-16-solid',
       color: 'red',
-      callback: () => {
-        isDisabled.value = false
-      },
     })
     console.error('There was an error.', error)
+  } finally {
+    isDisabled.value = false
   }
 }
 </script>
 
 <template>
   <div class="flex flex-col items-start w-full">
+    <ContactNotifications />
     <div class="flex flex-col items-start w-full space-y-3">
       <div class="flex items-center space-x-4 w-full">
         <BackButton />

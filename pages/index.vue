@@ -17,7 +17,10 @@ useSeoMeta({
       class="ring-[2px] rounded-lg h-full w-full absolute object-cover ring-white/20"
       width="128"
       height="128"
+      format="webp"
+      sizes="128px"
       densities="x1 x2"
+      fetchpriority="high"
       preload
     />
   </div>

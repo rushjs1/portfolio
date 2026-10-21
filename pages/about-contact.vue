@@ -8,6 +8,9 @@ useSeoMeta({
 
 const toast = useToast()
 const isDisabled = ref(false)
+const requestController = new AbortController()
+
+onBeforeUnmount(() => requestController.abort())
 
 const interests = [
   '3D Art',
@@ -37,10 +40,15 @@ async function submit() {
     const res = await $fetch('/api/contact', {
       method: 'POST',
       body: values,
+      signal: requestController.signal,
       headers: {
         'Content-Type': 'application/json',
       },
     })
+
+    if (requestController.signal.aborted) {
+      return
+    }
 
     if (res.ok) {
       toast.add({
@@ -53,6 +61,10 @@ async function submit() {
       resetForm()
     }
   } catch (error) {
+    if (requestController.signal.aborted) {
+      return
+    }
+
     toast.add({
       title: 'Error submitting inquiry.',
       description:
@@ -70,6 +82,7 @@ async function submit() {
 
 <template>
   <div class="flex w-full flex-col items-start">
+    <ContactNotifications />
     <div class="flex w-full flex-col items-start space-y-3">
       <div class="flex w-full items-center space-x-4">
         <BackButton />
