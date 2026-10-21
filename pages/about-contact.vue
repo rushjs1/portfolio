@@ -46,7 +46,9 @@ async function submit() {
       },
     })
 
-    if (requestController.signal.aborted) return
+    if (requestController.signal.aborted) {
+      return
+    }
 
     if (res.ok) {
       toast.add({
@@ -59,7 +61,9 @@ async function submit() {
       resetForm()
     }
   } catch (error) {
-    if (requestController.signal.aborted) return
+    if (requestController.signal.aborted) {
+      return
+    }
 
     toast.add({
       title: 'Error submitting inquiry.',
