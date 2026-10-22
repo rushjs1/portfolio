@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
-import { z } from 'zod'
+import { contactSchema } from '~/shared/contact'
 
 useSeoMeta({
   title: 'About + Contact',
@@ -19,21 +19,18 @@ const interests = [
   'Game Development',
 ]
 
-const { meta, values, errors, defineField, resetForm } = useForm({
-  validationSchema: toTypedSchema(
-    z.object({
-      name: z.string().nonempty(),
-      email: z.string().nonempty().email(),
-      message: z.string().nonempty(),
-    }),
-  ),
+const { meta, errors, defineField, resetForm, handleSubmit } = useForm({
+  validationSchema: toTypedSchema(contactSchema),
+  initialValues: { name: '', email: '', message: '', website: '' },
 })
 
 const [name, nameAttrs] = defineField('name')
 const [email, emailAttrs] = defineField('email')
 const [message, messageAttrs] = defineField('message')
+const [website, websiteAttrs] = defineField('website')
 
-async function submit() {
+const submit = handleSubmit(async (values) => {
+  if (isDisabled.value) return
   isDisabled.value = true
 
   try {
@@ -60,7 +57,7 @@ async function submit() {
 
       resetForm()
     }
-  } catch (error) {
+  } catch {
     if (requestController.signal.aborted) {
       return
     }
@@ -68,16 +65,15 @@ async function submit() {
     toast.add({
       title: 'Error submitting inquiry.',
       description:
-        'Please contact me via a different method, or try again later. <br /> <br/> I apologize for the inconvience.',
+        'Please contact me via a different method, or try again later. I apologize for the inconvenience.',
       timeout: 10000,
       icon: 'i-heroicons-x-circle-16-solid',
       color: 'red',
     })
-    console.error('There was an error.', error)
   } finally {
     isDisabled.value = false
   }
-}
+})
 </script>
 
 <template>
@@ -201,6 +197,19 @@ async function submit() {
           method="post"
           class="flex w-full flex-col gap-5"
         >
+          <div class="absolute -left-[10000px] h-px w-px overflow-hidden" aria-hidden="true">
+            <label for="website">Leave this field empty</label>
+            <input
+              id="website"
+              v-model="website"
+              v-bind="websiteAttrs"
+              name="website"
+              type="text"
+              tabindex="-1"
+              autocomplete="off"
+              maxlength="2000"
+            />
+          </div>
           <div class="flex flex-col gap-2">
             <label
               for="name"
@@ -209,6 +218,7 @@ async function submit() {
             >
             <input
               id="name"
+              maxlength="100"
               v-model="name"
               v-bind="nameAttrs"
               name="name"
@@ -233,6 +243,7 @@ async function submit() {
             >
             <input
               id="email"
+              maxlength="254"
               v-model="email"
               v-bind="emailAttrs"
               name="email"
@@ -257,6 +268,7 @@ async function submit() {
             >
             <textarea
               id="message"
+              maxlength="1024"
               v-model="message"
               v-bind="messageAttrs"
               name="message"

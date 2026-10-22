@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: { enabled: false },
 
   postcss: {
     plugins: {
@@ -14,6 +14,14 @@ export default defineNuxtConfig({
   },
   nitro: {
     routeRules: {
+      '/**': {
+        headers: {
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+        },
+      },
+      '/api/contact': { headers: { 'Cache-Control': 'no-store' } },
       '/': { prerender: true },
       '/about': { prerender: true },
       '/projects': { prerender: true },
