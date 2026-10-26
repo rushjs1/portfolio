@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
-import { z } from 'zod'
+import { contactSchema } from '~/shared/contact'
 
 useSeoMeta({
   title: 'Contact'
@@ -12,21 +12,20 @@ const requestController = new AbortController()
 
 onBeforeUnmount(() => requestController.abort())
 
-const { meta, values, errors, defineField, resetForm } = useForm({
-  validationSchema: toTypedSchema(
-    z.object({
-      name: z.string().nonempty(),
-      email: z.string().nonempty().email(),
-      message: z.string().nonempty(),
-    })
-  ),
+const { meta, errors, defineField, resetForm, handleSubmit } = useForm({
+  validationSchema: toTypedSchema(contactSchema),
+  initialValues: { name: '', email: '', message: '', website: '' },
 })
 
 const [name, nameAttrs] = defineField('name')
 const [email, emailAttrs] = defineField('email')
 const [message, messageAttrs] = defineField('message')
+const [website, websiteAttrs] = defineField('website')
 
-async function submit() {
+const submit = handleSubmit(async (values) => {
+  if (isDisabled.value) {
+    return
+  }
   isDisabled.value = true
 
   try {
@@ -45,32 +44,30 @@ async function submit() {
 
     if (res.ok) {
       toast.add({
-        title: 'Thank you for your submission!',
-        description: 'I will contact you about your inquiry as soon as I can.',
+        title: 'Message sent',
+        description: "Thanks for reaching out. I'll reply as soon as I can.",
         timeout: 10000,
         icon: 'i-heroicons-check-circle-16-solid',
       })
 
       resetForm()
     }
-  } catch (error) {
+  } catch {
     if (requestController.signal.aborted) {
       return
     }
 
     toast.add({
-      title: 'Error submitting inquiry.',
-      description:
-        'Please contact me via a different method, or try again later. <br /> <br/> I apologize for the inconvience.',
+      title: 'Unable to send your message',
+      description: 'Please try again later or contact me another way.',
       timeout: 10000,
       icon: 'i-heroicons-x-circle-16-solid',
       color: 'red',
     })
-    console.error('There was an error.', error)
   } finally {
     isDisabled.value = false
   }
-}
+})
 </script>
 
 <template>
@@ -124,12 +121,29 @@ async function submit() {
         </p>
 
         <form @submit.prevent="submit" action="#" method="post" class="flex flex-col gap-5 w-full">
+          <div class="absolute -left-[10000px] h-px w-px overflow-hidden" aria-hidden="true">
+            <label for="website">Leave this field empty</label>
+            <input
+              id="website"
+              v-model="website"
+              v-bind="websiteAttrs"
+              name="website"
+              type="text"
+              tabindex="-1"
+              autocomplete="off"
+              maxlength="2000"
+            />
+          </div>
           <div class="flex flex-col gap-2">
             <label for="name" class="text-xs font-mono uppercase tracking-[0.18em] text-white/50">Name</label>
             <input
               v-model="name"
               v-bind="nameAttrs"
               id="name"
+              name="name"
+              type="text"
+              autocomplete="name"
+              maxlength="100"
               class="bg-white/[0.04] ring-1 ring-white/10 focus:ring-yellow-400/40 rounded-md w-full px-3 py-2.5 outline-none placeholder:text-white/30"
               placeholder="Your name"
             />
@@ -142,6 +156,10 @@ async function submit() {
               v-model="email"
               v-bind="emailAttrs"
               id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              maxlength="254"
               class="bg-white/[0.04] ring-1 ring-white/10 focus:ring-yellow-400/40 rounded-md w-full px-3 py-2.5 outline-none placeholder:text-white/30"
               placeholder="you@example.com"
             />
@@ -154,6 +172,8 @@ async function submit() {
               v-model="message"
               v-bind="messageAttrs"
               id="message"
+              name="message"
+              maxlength="1024"
               rows="5"
               class="bg-white/[0.04] ring-1 ring-white/10 focus:ring-yellow-400/40 rounded-md w-full px-3 py-2.5 outline-none placeholder:text-white/30 resize-y"
               placeholder="What's on your mind?"
