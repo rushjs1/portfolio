@@ -3,6 +3,26 @@ export default defineNuxtPlugin(() => {
     return;
   }
 
+  const preference = new URLSearchParams(window.location.search).get('analytics');
+  const storageKey = 'portfolio:analytics-disabled';
+
+  try {
+    if (preference === 'off') {
+      localStorage.setItem(storageKey, 'true');
+      return;
+    }
+
+    if (preference === 'on') {
+      localStorage.removeItem(storageKey);
+    }
+
+    if (localStorage.getItem(storageKey) === 'true') {
+      return;
+    }
+  } catch {
+    return;
+  }
+
   useHead({
     script: [
       {
