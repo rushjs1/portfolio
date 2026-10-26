@@ -6,5 +6,3 @@ export const contactSchema = z.object({
   message: z.string().trim().min(1, 'Please enter a message.').max(1024),
   website: z.string().max(2000),
 })
-
-export type ContactSubmission = z.infer<typeof contactSchema>

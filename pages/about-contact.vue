@@ -30,7 +30,9 @@ const [message, messageAttrs] = defineField('message')
 const [website, websiteAttrs] = defineField('website')
 
 const submit = handleSubmit(async (values) => {
-  if (isDisabled.value) return
+  if (isDisabled.value) {
+    return
+  }
   isDisabled.value = true
 
   try {
@@ -49,8 +51,8 @@ const submit = handleSubmit(async (values) => {
 
     if (res.ok) {
       toast.add({
-        title: 'Thank you for your submission!',
-        description: 'I will contact you about your inquiry as soon as I can.',
+        title: 'Message sent',
+        description: "Thanks for reaching out. I'll reply as soon as I can.",
         timeout: 10000,
         icon: 'i-heroicons-check-circle-16-solid',
       })
@@ -63,9 +65,8 @@ const submit = handleSubmit(async (values) => {
     }
 
     toast.add({
-      title: 'Error submitting inquiry.',
-      description:
-        'Please contact me via a different method, or try again later. I apologize for the inconvenience.',
+      title: 'Unable to send your message',
+      description: 'Please try again later or contact me another way.',
       timeout: 10000,
       icon: 'i-heroicons-x-circle-16-solid',
       color: 'red',

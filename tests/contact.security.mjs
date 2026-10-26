@@ -8,7 +8,9 @@ const deliveries = []
 let webhookStatus = 204
 const receiver = createServer(async (req, res) => {
   let body = ''
-  for await (const chunk of req) body += chunk
+  for await (const chunk of req) {
+    body += chunk
+  }
   deliveries.push(JSON.parse(body))
   res.writeHead(webhookStatus).end()
 })
@@ -36,13 +38,21 @@ async function startApp(webhookUrl) {
   })
   servers.push(child)
   let output = ''
-  child.stdout.on('data', (chunk) => { output += chunk })
-  child.stderr.on('data', (chunk) => { output += chunk })
+  child.stdout.on('data', (chunk) => {
+    output += chunk
+  })
+  child.stderr.on('data', (chunk) => {
+    output += chunk
+  })
   const url = `http://127.0.0.1:${port}`
   for (let attempt = 0; attempt < 100; attempt++) {
-    if (child.exitCode !== null) throw new Error(`Server exited. ${output}`)
+    if (child.exitCode !== null) {
+      throw new Error(`Server exited. ${output}`)
+    }
     try {
-      if ((await fetch(url)).ok) return url
+      if ((await fetch(url)).ok) {
+        return url
+      }
     } catch {}
     await delay(100)
   }
@@ -96,7 +106,10 @@ try {
   const chunkedStatus = await new Promise((resolve, reject) => {
     const req = request(`${base}/api/contact`, {
       method: 'POST', headers: { 'content-type': 'application/json', 'transfer-encoding': 'chunked' },
-    }, (res) => { res.resume(); resolve(res.statusCode) })
+    }, (res) => {
+      res.resume()
+      resolve(res.statusCode)
+    })
     req.on('error', reject)
     req.setTimeout(5000, () => req.destroy(new Error('Chunked request timed out')))
     req.write('{"message":"')
@@ -133,15 +146,21 @@ try {
     assert.equal(page.headers.get('x-content-type-options'), 'nosniff')
     assert.equal(page.headers.get('x-frame-options'), 'DENY')
     const html = await page.text()
-    if (path.includes('contact')) assert.match(html, /name="website"/)
-    if (path === '/projects') assert.match(html, /Filter Fetch/)
+    if (path.includes('contact')) {
+      assert.match(html, /name="website"/)
+    }
+    if (path === '/projects') {
+      assert.match(html, /Filter Fetch/)
+    }
   }
   const image = await fetch(`${base}/_ipx/w_64/me.png`)
   assert.equal(image.status, 200)
   assert.match(image.headers.get('content-type'), /^image\//)
   console.log('PASS missing webhook, all pages, security headers, both form fields, project content and image processing')
 } finally {
-  for (const child of servers) child.kill('SIGTERM')
+  for (const child of servers) {
+    child.kill('SIGTERM')
+  }
   receiver.closeAllConnections()
   await new Promise((resolve) => receiver.close(resolve))
 }

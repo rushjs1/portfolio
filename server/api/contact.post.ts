@@ -29,7 +29,9 @@ export default defineEventHandler(async (event) => {
   try {
     while (true) {
       const { done, value } = await reader.read()
-      if (done) break
+      if (done) {
+        break
+      }
       size += value.byteLength
       if (size > maxBytes) {
         if (event.web?.request) {
@@ -76,7 +78,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const { name, email, message, website } = result.data
-  if (website) return { ok: true }
+  if (website) {
+    return { ok: true }
+  }
 
   const { webhookUrl } = useRuntimeConfig(event)
   if (!webhookUrl) {
